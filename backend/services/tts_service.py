@@ -1,10 +1,13 @@
 from gtts import gTTS
-import os
 import uuid
+import os
+import boto3
+
+s3 = boto3.client("s3")
+
+BUCKET_NAME = "talksync-audio-storage"
 
 OUTPUT_DIR = "generated_audio"
-
-# create folder if not exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
@@ -13,7 +16,6 @@ def text_to_audio(text: str, language: str) -> bytes:
     if not text:
         return b""
 
-    # language mapping
     lang_map = {
         "hindi": "hi",
         "punjabi": "pa"
@@ -21,18 +23,18 @@ def text_to_audio(text: str, language: str) -> bytes:
 
     lang = lang_map.get(language, "hi")
 
-    # unique filename
     filename = f"{language}_{uuid.uuid4()}.mp3"
     filepath = os.path.join(OUTPUT_DIR, filename)
 
-    # generate speech
     tts = gTTS(text=text, lang=lang)
     tts.save(filepath)
 
-    # read bytes for websocket
+    # upload to S3
+    s3.upload_file(filepath, BUCKET_NAME, filename)
+
+    print(f"Uploaded to S3: {filename}")
+
     with open(filepath, "rb") as f:
         audio_bytes = f.read()
-
-    print(f"TTS generated: {filepath}")
 
     return audio_bytes
