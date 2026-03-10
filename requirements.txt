@@ -2,7 +2,6 @@ fastapi
 uvicorn
 faster-whisper
 ctranslate2
-torch --index-url https://download.pytorch.org/whl/cpu
 gtts
 pydub
 boto3
@@ -10,7 +9,3 @@ python-multipart
 numpy
 soundfile
 av
-huggingface-hub
-onnxruntime
-tokenizers
-tqdm
